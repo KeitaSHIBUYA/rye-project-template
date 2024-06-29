@@ -1,0 +1,39 @@
+# GitHub Actions で CI を実行
+# Ruff での静的解析とフォーマットチェックを行う
+
+name: CI
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+
+jobs:
+  Ruff:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          cd app-template
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.lock
+
+      - name: Lint with Ruff
+        run: |
+          cd app-template
+          ruff check src/ --output-format=github
+
+      - name: Format with Ruff
+        run: |
+          cd app-template
+          ruff format src/ --check

@@ -1,0 +1,48 @@
+name: Feature Request
+description: Suggest an idea for this project
+labels: ['enhancement']
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Feature Request
+
+        Thank you for taking the time to suggest a new feature.
+        Please describe the feature request with as much detail as possible.
+
+  - type: input
+    id: feature-summary
+    attributes:
+      label: Feature Summary
+      description: Provide a brief summary of the feature.
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem-to-solve
+    attributes:
+      label: Problem to solve
+      description: What problem does this feature solve? Why is it needed?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Proposed Solution
+      description: How do you propose to implement this feature? Provide any technical details you can.
+    validations:
+      required: false
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this feature?
+      options:
+        - Low
+        - Medium
+        - High
+    validations:
+      required: true
