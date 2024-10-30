@@ -1,8 +1,7 @@
 from fastapi import FastAPI
 
-# local import
-from routers import health
-from variables import BASE_URI
+from src.routers import health
+from src.variables import BASE_URI
 
 app = FastAPI()
 
