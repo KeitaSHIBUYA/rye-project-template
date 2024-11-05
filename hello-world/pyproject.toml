@@ -5,7 +5,9 @@ description = "Add your description here"
 authors = [
     { name = "Shibuya Keita", email = "shibuya.keita@cloud-ace.jp" }
 ]
-dependencies = []
+dependencies = [
+    "fastapi[standard]>=0.115.4",
+]
 readme = "README.md"
 requires-python = ">= 3.8"
 
@@ -15,10 +17,12 @@ build-backend = "hatchling.build"
 
 [tool.rye]
 managed = true
-dev-dependencies = []
+dev-dependencies = [
+    "ruff>=0.7.1",
+]
 
 [tool.hatch.metadata]
 allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/hello_world"]
+packages = ["src"]
