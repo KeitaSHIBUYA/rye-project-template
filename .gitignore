@@ -1,4 +1,5 @@
 # local
+.envrc
 .DS_Store
 .github/workflows/coverage.yaml
 */.ruff_cache

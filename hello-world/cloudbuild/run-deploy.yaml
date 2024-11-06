@@ -1,0 +1,82 @@
+# Trigger: Push to main branch
+
+steps:
+  # キャッシュの取得
+  - id: 'Pull'
+    name: 'gcr.io/cloud-builders/docker'
+    entrypoint: docker
+    args:
+      [
+        'pull',
+        '${_IMAGE_PATH}:latest',
+      ]
+    allowFailure: true
+
+  # Docker イメージをビルド
+  - id: 'Build'
+    name: 'gcr.io/cloud-builders/docker'
+    entrypoint: docker
+    args:
+      [
+        'build',
+        '-t',
+        '${_IMAGE_PATH}:$COMMIT_SHA',
+        '-t',
+        '${_IMAGE_PATH}:latest',
+        '--cache-from',
+        '${_IMAGE_PATH}:latest',
+        './hello-world',
+      ]
+
+  # Artifact Registry に Push
+  - id: 'Push COMMIT_SHA'
+    name: 'gcr.io/cloud-builders/docker'
+    entrypoint: docker
+    args:
+      [
+        'push',
+        '${_IMAGE_PATH}:$COMMIT_SHA',
+      ]
+
+  # latest タグを付けて Artifact Registry に Push
+  - id: 'Push latest'
+    name: 'gcr.io/cloud-builders/docker'
+    entrypoint: docker
+    args:
+      [
+        'push',
+        '${_IMAGE_PATH}:latest',
+      ]
+
+  # Cloud Run にデプロイ
+  - id: 'Deploy hello-world'
+    name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
+    entrypoint: bash
+    waitFor: ['Push COMMIT_SHA', 'Push latest']
+    args:
+      - -c
+      - |
+        # サービスアカウント名を置換
+        sed -i 's|SERVICE_ACCOUNT_NAME|${_SERVICE_ACCOUNT}|' ${_RUN_MANIFEST_PATH}
+        # イメージパスを置換
+        sed -i 's|IMAGE_PATH|${_IMAGE_PATH}:${COMMIT_SHA}|' ${_RUN_MANIFEST_PATH}
+        # Cloud Run にデプロイ
+        gcloud run services replace ${_RUN_MANIFEST_PATH} --project=${PROJECT_ID}
+        # 自分のアカウントに Cloud Run 呼び出し権限を付与
+        gcloud run services add-iam-policy-binding ${_SERVICE_NAME} --member=${_USER_NAME} --role=${_ROLE} --region=${_LOCATION}
+
+images: ['${_IMAGE_PATH}:${COMMIT_SHA}']
+
+# 環境変数に代入
+substitutions:
+  _REPOSITORY_NAME: iroiro
+  _SERVICE_NAME: hello-world
+  _LOCATION: asia-northeast1
+  _RUN_MANIFEST_PATH: hello-world/cloudrun/run.yaml
+  _USER_NAME: user:shibuya.keita@cloud-ace.jp
+  _ROLE: roles/run.invoker
+  _IMAGE_PATH: ${_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY_NAME}/${_SERVICE_NAME}
+  _SERVICE_ACCOUNT: run-${_SERVICE_NAME}@${PROJECT_ID}.iam.gserviceaccount.com
+timeout: '3600s'
+options:
+  logging: CLOUD_LOGGING_ONLY
