@@ -24,16 +24,16 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd app-template
+          cd hello-world
           python -m pip install --upgrade pip
           pip install -r requirements-dev.lock
 
       - name: Lint with Ruff
         run: |
-          cd app-template
+          cd hello-world
           ruff check src/ --output-format=github
 
       - name: Format with Ruff
         run: |
-          cd app-template
+          cd hello-world
           ruff format src/ --check
