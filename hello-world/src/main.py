@@ -8,6 +8,7 @@ app = FastAPI()
 def read_root():
     return "Hello, world!"
 
+
 # error エンドポイント
 @app.get("/error")
 def error():
